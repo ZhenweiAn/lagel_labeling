@@ -70,8 +70,23 @@ def createAppeal(cursor):
         create table Appeal (
             num int not null auto_increment primary key,
             id varchar(255) not null,
-            app text,
-            class int default -1
+            app text
+            )engine=innodb default charset=utf8;
+         '''
+    cursor.execute(sql)
+    print('成功创建Appeal数据库')
+
+
+def createAppealLabel(cursor):
+    sql = '''drop table if exists AppealLabel'''
+    cursor.execute(sql)
+
+    #class是对诉求的分类,0 驳回，1部分驳回, 2 支持, -1未分类
+    '''建立表'''
+    sql ='''
+        create table AppealLabel (
+            ap_num int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
          '''
     cursor.execute(sql)
@@ -104,27 +119,68 @@ def createFocus(cursor):
                 plain_evi_num int,
                 defen_evi_num int,
                 app_num int,
-                arg_num int
+                arg_num int,
+                lb_id int
                 )engine=innodb default charset=utf8;
              '''
     cursor.execute(sql)
     print('成功创建Focus数据库')
 
-def createLabelLog(cursor):
 
-    sql = '''drop table if exists LabelLog'''
+def createLabelEvent(cursor):
+
+    sql = '''drop table if exists LabelEvent'''
     cursor.execute(sql)
 
     '''建立表'''
     sql = '''
-            create table LabelLog (
+            create table LabelEvent (
                 num int not null auto_increment primary key,
-                id varchar(255) not null,
-                labeled int default 0
+                case_id varchar(255) not null,
+                labeller_id varchar(255) not null
                 )engine=innodb default charset=utf8;
              '''
     cursor.execute(sql)
-    print('成功创建LabelLog数据库')
+    print('成功创建LabelEvent数据库')
+
+
+def createLabelList(cursor):
+
+    sql = '''drop table if exists LabelList'''
+    cursor.execute(sql)
+
+    '''建立表'''
+    sql = '''
+            create table LabelList (
+                num int not null auto_increment primary key,
+                id varchar(255) not null
+                )engine=innodb default charset=utf8;
+             '''
+    cursor.execute(sql)
+    print('成功创建LabelList数据库')
+
+
+def createLabelCount(cursor):
+
+    sql = '''drop view if exists LabelCount'''
+    cursor.execute(sql)
+
+    '''建立表'''
+    sql = '''
+            create view LabelCount as
+            select LabelList.id, (case when cnt.label_sum is not null then cnt.label_sum else 0 end) as count
+            from LabelList
+            left join 
+            (
+                select case_id, count(*) as label_sum 
+                from LabelEvent
+                group by case_id
+            ) cnt
+            on LabelList.id = cnt.case_id
+             '''
+    cursor.execute(sql)
+    print('成功创建LabelCount视图')
+
 
 #原告证据和诉求的关系
 def create_rel_plainev_ap(cursor):
@@ -134,7 +190,8 @@ def create_rel_plainev_ap(cursor):
             create table rel_plainev_ap (
             num int not null auto_increment primary key,
             ev_id int not null,
-            ap_id int not null
+            ap_id int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
             '''
     cursor.execute(sql)
@@ -148,7 +205,8 @@ def create_rel_defenev_ap(cursor):
             create table rel_defenev_ap (
             num int not null auto_increment primary key,
             ev_id int not null,
-            ap_id int not null
+            ap_id int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
             '''
     cursor.execute(sql)
@@ -162,7 +220,8 @@ def create_rel_plainev_ar(cursor):
             create table rel_plainev_ar (
             num int not null auto_increment primary key,
             ev_id int not null,
-            ar_id int not null
+            ar_id int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
             '''
     cursor.execute(sql)
@@ -176,7 +235,8 @@ def create_rel_defenev_ar(cursor):
             create table rel_defenev_ar (
             num int not null auto_increment primary key,
             ev_id int not null,
-            ar_id int not null
+            ar_id int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
             '''
     cursor.execute(sql)
@@ -190,7 +250,8 @@ def create_rel_plain_defen(cursor):
             create table rel_plain_defen (
             num int not null auto_increment primary key,
             plain_ev_id int not null,
-            defen_ev_id int not null
+            defen_ev_id int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
             '''
     cursor.execute(sql)
@@ -204,7 +265,8 @@ def create_rel_ap_ar(cursor):
             create table rel_ap_ar (
             num int not null auto_increment primary key,
             ap_id int not null,
-            ar_id int not null
+            ar_id int not null,
+            lb_id int not null
             )engine=innodb default charset=utf8;
             '''
     cursor.execute(sql)
@@ -231,16 +293,25 @@ def rely(cursor):
         '''
     cursor.execute(''' alter table rel_plainev_ap add foreign key(ev_id) references PlaintiffEvidence(num)''')
     cursor.execute('''  alter table rel_plainev_ap add foreign key(ap_id) references Appeal(num)''')
+    cursor.execute('''  alter table rel_plainev_ap add foreign key(lb_id) references LabelEvent(num)''')
     cursor.execute('''alter table rel_defenev_ap add foreign key(ev_id) references DefendentEvidence(num)''')
     cursor.execute('''  alter table rel_defenev_ap add foreign key(ap_id) references Appeal(num)''')
+    cursor.execute('''  alter table rel_defenev_ap add foreign key(lb_id) references LabelEvent(num)''')
     cursor.execute('''alter table rel_plainev_ar add foreign key(ev_id) references PlaintiffEvidence(num)''')
     cursor.execute(''' alter table rel_plainev_ar add foreign key(ar_id) references Argue(num); ''')
+    cursor.execute('''  alter table rel_plainev_ar add foreign key(lb_id) references LabelEvent(num)''')
     cursor.execute(''' alter table rel_defenev_ar add foreign key(ev_id) references DefendentEvidence(num)''')
     cursor.execute('''  alter table rel_defenev_ar add foreign key(ar_id) references Argue(num)''')
+    cursor.execute('''  alter table rel_defenev_ar add foreign key(lb_id) references LabelEvent(num)''')
     cursor.execute(''' alter table rel_plain_defen add foreign key(plain_ev_id) references PlaintiffEvidence(num);''')
     cursor.execute('''   alter table rel_plain_defen add foreign key(defen_ev_id) references DefendentEvidence(num);''')
+    cursor.execute('''  alter table rel_plain_defen add foreign key(lb_id) references LabelEvent(num)''')
     cursor.execute('''   alter table rel_ap_ar add foreign key(ap_id) references Appeal(num);''')
     cursor.execute(''' alter table rel_ap_ar add foreign key(ar_id) references Argue(num);''')
+    cursor.execute('''  alter table rel_ap_ar add foreign key(lb_id) references LabelEvent(num)''')
+
+    cursor.execute('''  alter table AppealLabel add foreign key(ap_num) references Appeal(num)''')
+    cursor.execute('''  alter table AppealLabel add foreign key(lb_id) references LabelEvent(num)''')
     return
 
 def init(cursor):
@@ -250,7 +321,10 @@ def init(cursor):
     createAppeal(cursor)
     createArgue(cursor)
     createFocus(cursor)
-    createLabelLog(cursor)
+    createLabelList(cursor)
+    createLabelEvent(cursor)
+    createLabelCount(cursor)
+    createAppealLabel(cursor)
     create_rel_plainev_ap(cursor)
     create_rel_defenev_ap(cursor)
     create_rel_plainev_ar(cursor)
@@ -356,10 +430,10 @@ def Insert_LawCase(cursor):
         Cases = json.load(f)
 '''
 
-def Insert_LabelLog(cursor,filename):
+def Insert_LabelList(cursor,filename):
     f = open(filename,'r',encoding='utf-8')
     ids = json.load(f)[:300]
-    sql = 'insert into LabelLog(id) values(%s)' 
+    sql = 'insert into LabelList(id) values(%s)' 
     cursor.executemany(sql,ids)
 
 def Insert_PlaintiffEvidence(cursor,filename):
@@ -420,7 +494,7 @@ def Insert_Argue(cursor,filename):
 
 def Insert(cursor):
     Insert_LawCase(cursor)
-    Insert_LabelLog(cursor,'LawSeaV2/src/DataLabelingStage1/result_list.json')
+    Insert_LabelList(cursor,'LawSeaV2/src/DataLabelingStage1/result_list.json')
     Insert_PlaintiffEvidence(cursor,'LawSeaV2/data/extract/stage1/法信_抽取.json')
     Insert_PlaintiffEvidence(cursor,'LawSeaV2/data/extract/stage1/Openlaw_抽取.json')
 
@@ -442,12 +516,12 @@ if __name__ == '__main__':
 
     # 创建游标
     cursor = conn.cursor()
-    # cursor.execute('''use Label''')
+    # cursor.execute('''use Label_multiple''')
 
     
-    cursor.execute('''drop database if exists Label''')
-    cursor.execute('''create database if not exists Label''')
-    cursor.execute('''use Label''')
+    cursor.execute('''drop database if exists Label_multiple''')
+    cursor.execute('''create database if not exists Label_multiple''')
+    cursor.execute('''use Label_multiple''')
     
     cursor.execute('SET FOREIGN_KEY_CHECKS=0')
 
@@ -460,6 +534,6 @@ if __name__ == '__main__':
     data = cursor.fetchall()
     print(len(data))
     print(data)
-    sql = '''select count(*) from LabelLog where labeled = 1'''
+    sql = '''select count(*) from LabelCount where count > 0'''
     cursor.execute(sql)
     print(cursor.fetchall()[0][0])
