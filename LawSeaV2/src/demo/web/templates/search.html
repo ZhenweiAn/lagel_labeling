@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+        <title>类案查询系统(Demo)</title>
+
+        <!-- css -->
+        <!-- Bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="../static/css/web.css">
+
+        <!-- js -->
+        <!-- jQuery -->
+        <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="../static/js/web.js"></script>
+
+    </head>
+    <body>
+        <div class="frame">
+
+            
+            <h1 class="text-center">类案查询系统</h1>
+
+            <div class="col-sm-3" style="border-right-style: inset;">
+                <!-- 抽取查询窗口 -->
+                <h2 class="text-center">信息输入</h2>
+                <div class="form-horizontal">
+                    <div class="form-group">
+
+                        <div class="block col-sm-12">
+                            <label class="col-sm-offset-0 col-sm-12 input-label">案情描述</label>
+                            <div class="col-sm-12">
+                                <textarea class="col-sm-12" rows="5" id="description" placeholder="请输入案情描述"></textarea>
+                                <div class="col-sm-offset-0 col-sm-6" style="margin-top: 10px; margin-bottom: 10px;">
+                                    <button id="btn_extract" class="btn btn-default col-sm-12">要素抽取</button>
+                                </div>
+                                <div class="col-sm-6" style="margin-top: 10px; margin-bottom: 10px;">
+                                    <button id="btn_query" class="btn btn-primary col-sm-12">查询</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="block col-sm-12">
+                            <label for="cygzjbsx" class="col-sm-offset-0 col-sm-12 input-label">案由</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ay" value="船员劳务合同纠纷">船员劳务合同纠纷
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ay" value="海上货物运输合同纠纷">海上货物运输合同纠纷
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ay" value="船舶碰撞损害赔偿纠纷">船舶碰撞损害赔偿纠纷
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ay" value="船舶碰撞损害赔偿纠纷">船员人身伤亡损害赔偿纠纷
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="block col-sm-12">
+                            <label for="cygzjbsx" class="col-sm-offset-0 col-sm-12 input-label">船员雇主基本属性</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cygzjbsx" value="自然人">自然人
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cygzjbsx" value="法人">法人
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cygzjbsx" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">劳务合同的形式</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwhtdxs" value="口头">口头
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwhtdxs" value="书面">书面
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">劳务关系存在的证明</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="上船协议">上船协议
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="劳务合同">劳务合同
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="劳动合同">劳动合同
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="劳务派遣协议">劳务派遣协议
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="微信、短信、电话等聊天记录">微信、短信、电话等聊天记录
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="船员服务电话簿">船员服务电话簿
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="上船证明">上船证明
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="下船证明">下船证明
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="lwgxczdzm" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">工资标准的约定</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="月工资">月工资
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="年薪">年薪
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="人民币">人民币
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="美元">美元
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="基础工资">基础工资
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="工龄工资">工龄工资
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="技能工资">技能工资
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="补助">补助 
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="gzbzdyd" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">应付劳务报酬和费用</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yflwbchfy" value="工资">工资
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yflwbchfy" value="利息">利息
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yflwbchfy" value="遣返费用">遣返费用
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yflwbchfy" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">已经支付的工资的证明</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yjzfdgzdzm" value="未支付">未支付
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yjzfdgzdzm" value="银行付款记录">银行付款记录
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yjzfdgzdzm" value="转账记录">转账记录
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yjzfdgzdzm" value="收据">收据
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="yjzfdgzdzm" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">船员在船工作及工作时间的证明</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cyzcgzjgzsjdzm" value="船员服务簿">船员服务簿
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cyzcgzjgzsjdzm" value="上船证明">上船证明
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cyzcgzjgzsjdzm" value="下船证明">下船证明
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cyzcgzjgzsjdzm" value="其他船员证言">其他船员证言
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="cyzcgzjgzsjdzm" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">争议解决方式的约定</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="zyjjfsdyd" value="无约定">无约定
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="zyjjfsdyd" value="调解">调解
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="zyjjfsdyd" value="诉讼">诉讼
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="zyjjfsdyd" value="仲裁">仲裁
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">诉讼请求</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ssqq" value="支付工资">支付工资
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ssqq" value="支付遣返费用">支付遣返费用
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ssqq" value="支付利息">支付利息
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ssqq" value="解除劳务合同">解除劳务合同
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ssqq" value="船舶优先权">船舶优先权
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="ssqq" value="其他">其他
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="block col-sm-12">
+                            <label for="name" class="col-sm-offset-0 col-sm-12 input-label">法律依据</label>
+                            <div class="col-sm-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="flyj" value="《船员条例》">《船员条例》
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="flyj" value="《海商法》">《海商法》
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="flyj" value="《劳务合同法》">《劳务合同法》
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="flyj" value="《民事诉讼法》">《民事诉讼法》
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="flyj" value="《其他》">其他
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="block col-sm-12">
+                            <label for="keywords" class="col-sm-offset-0 col-sm-12 input-label">其他关键词</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="keywords" placeholder="请输入关键词">
+                            </div>
+                        </div>  
+
+<!-- 
+                        <div class="col-sm-offset-3 col-sm-6" style="margin-top: 10px;">
+                            <button id="btn_query" class="btn btn-primary col-sm-12">查询</button>
+                        </div> -->
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果选择窗口 -->
+            <div class="col-sm-3" style="border-right-style: inset;">
+                <h2 class="text-center">候选文书</h2>
+                <div class="block">
+                    <h3>精</h3>
+                    <div  id="tb_result_fine">
+                        <table class="table" style="min-height: 100px; ">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-2">案号</th>
+                                    <th class="col-sm-8">文书标题</th>
+                                    <th class="col-sm-2">得分</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tb_result_body">
+
+                            </tbody>
+                        </table>    
+                    </div>
+                </div>
+                <div class="block">
+                    <h3>粗</h3>
+                    <div  id="tb_result_coarse">
+                        <table class="table" style="min-height: 100px;">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-2">案号</th>
+                                    <th class="col-sm-8">文书标题</th>
+                                    <th class="col-sm-2">得分</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tb_result_body">
+
+                            </tbody>
+                        </table>    
+                    </div>
+                </div>
+                
+                
+            </div>
+
+            <!-- 结果展示窗口 -->
+            <div class="col-sm-6">
+                <h2 class="text-center">文书详情</h2>
+                <table class="table" id="tb_description", style="visibility: hidden;">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-2">项目</th>
+                            <th class="col-sm-10">内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="des_title">
+                            <td>标题</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_id">
+                            <td>案号</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_cause">
+                            <td>案由</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_source">
+                            <td>来源</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_court">
+                            <td>审理法院</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_judge">
+                            <td>审判员</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_clerk">
+                            <td>书记员</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_party">
+                            <td>当事人</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_process">
+                            <td>庭审过程</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_opinion">
+                            <td>法院意见</td>
+                            <td></td>
+                        </tr>
+                        <tr id="des_result">
+                            <td>判决结果</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>    
+            </div>
+
+        </div>
+        <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+        <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    </body>
+</html>

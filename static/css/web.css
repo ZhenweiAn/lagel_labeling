@@ -1,0 +1,32 @@
+
+
+.container{
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.input-label{
+    text-align: left;
+    margin-bottom: 0px;
+}
+
+.block{
+    margin-bottom: 5px;
+}
+
+
+#tb_result_fine{
+    /*overflow:scroll; */
+    visibility: hidden;
+}
+
+#tb_result_coarse{
+    /*overflow:scroll; */
+    visibility: hidden;
+}
+
+#tb_result_lib{
+    overflow:scroll; 
+    visibility: hidden;
+    height: 1000px;
+}
