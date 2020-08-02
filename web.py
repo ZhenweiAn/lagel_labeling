@@ -144,7 +144,7 @@ def find_chain(pair1,pair2,pair3,pair4,pair5,pair6):
         if chain[0] == -1 and chain[1] != -1 and chain[2] == -1 and chain[3] != -1:
             chains.remove(chain)
         if chain[0] != -1 and chain[1] == -1 and chain[2] != -1 and chain[3] == -1:
-            chains.append(chain)
+            chains.remove(chain)
     print(chains)
     return chains
      
@@ -277,38 +277,44 @@ class Get_Chain(Resource):
 
         tmp = []
 
-        for pair in rel_plainev_ap:
-            tmp.append([plainevi[pair[0]],app[pair[1]]])
-        rel_plainev_ap = tmp
+        try:
 
-        tmp = []
-        for pair in rel_defenev_ap:
-            tmp.append([defenevi[pair[0]],app[pair[1]]])
-        rel_defenev_ap = tmp
+            for pair in rel_plainev_ap:
+                tmp.append([plainevi[pair[0]],app[pair[1]]])
+            rel_plainev_ap = tmp
 
-        tmp = []
-        for pair in rel_plainev_ar:
-            tmp.append([plainevi[pair[0]],arg[pair[1]]])
-        rel_plainev_ar = tmp
+            tmp = []
+            for pair in rel_defenev_ap:
+                tmp.append([defenevi[pair[0]],app[pair[1]]])
+            rel_defenev_ap = tmp
 
-        tmp = []
-        print(defenevi)
-        print(arg)
-        print(rel_defenev_ar)
-        for pair in rel_defenev_ar:
-            print(pair)
-            tmp.append([defenevi[pair[0]],arg[pair[1]]])
-        rel_defenev_ar = tmp
+            tmp = []
+            for pair in rel_plainev_ar:
+                tmp.append([plainevi[pair[0]],arg[pair[1]]])
+            rel_plainev_ar = tmp
 
-        tmp = []
-        for pair in rel_plain_defen:
-            tmp.append([plainevi[pair[0]],defenevi[pair[1]]])
-        rel_plain_defen = tmp
+            tmp = []
+            print(defenevi)
+            print(arg)
+            print(rel_defenev_ar)
+            for pair in rel_defenev_ar:
+                print(pair)
+                tmp.append([defenevi[pair[0]],arg[pair[1]]])
+            rel_defenev_ar = tmp
 
-        tmp = []
-        for pair in rel_ap_ar:
-            tmp.append([app[pair[0]],arg[pair[1]]])
-        rel_ap_ar = tmp
+            tmp = []
+            for pair in rel_plain_defen:
+                tmp.append([plainevi[pair[0]],defenevi[pair[1]]])
+            rel_plain_defen = tmp
+
+            tmp = []
+            for pair in rel_ap_ar:
+                tmp.append([app[pair[0]],arg[pair[1]]])
+            rel_ap_ar = tmp
+
+        except IndexError:
+            print("IndexError")
+            return "IndexError"
 
         tmp = []
         for i in range(len(ap_class)):

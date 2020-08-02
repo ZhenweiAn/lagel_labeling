@@ -442,7 +442,7 @@ if __name__ == '__main__':
 
     # 创建游标
     cursor = conn.cursor()
-    cursor.execute('''use Label''')
+    # cursor.execute('''use Label''')
 
     
     cursor.execute('''drop database if exists Label''')
