@@ -3,12 +3,15 @@ from flask_restful import Api, Resource
 import pymysql
 import json
 
+REQUIRE_NUM = 1
 #encode
 app = Flask(__name__)
 api = Api(app)
 
 
-def Get_Case(cursor,id):
+def Get_Case(cursor, id):
+    # the function is never used ?
+
     file_num = int(id[5])
     case_num = int(id[9:])
     case_id = 'class' + str(file_num) + '_id' + str(case_num + 1)
@@ -23,11 +26,22 @@ def Get_Case(cursor,id):
         Case = cursor.fetchall()
     return Case,case_id
 
-def Get_Res(cursor,random):
-    if random:
-        sql = '''select id from LabelLog where labeled = 0 order by rand() limit 1'''
-    else:
-        sql = '''select id from LabelLog where labeled = 0 limit 1'''
+def Get_Res(cursor, random, labeller_id):
+
+    #  if random:
+    #      sql = '''select id from LabelCount where labeled < 0 order by rand() limit 1'''
+    #  else:
+    #      sql = '''select id from LabelLog where labeled = 0 limit 1'''
+
+    sql = '''
+    select lc.id 
+	from labelcount lc
+    left join (select case_id from labelevent where labeller_id = "%s") le
+    on (lc.id = le.case_id)
+    where (le.case_id is null and lc.count < %s)'''%(labeller_id, REQUIRE_NUM) \
+        + ('''order by rand() limit 1;''' if random else '''limit 1;''')
+    # 选出没有被labeller标过的且标注数量小于要求的案件
+
     cursor.execute(sql)
     case_id = cursor.fetchall()
     print(case_id)
@@ -127,7 +141,7 @@ def add_tuple(chains, tups):
     for chain in remove_chains:
         chains.remove(chain)
     for chain in append_chains:
-        chains.append(chain)    
+        chains.append(chain)
     return chains
 
 #rel_plain_defen,rel_defenev_ap,rel_ap_ar,rel_plainev_ar
@@ -199,25 +213,29 @@ def inverse(lis):
 
 class NextPage(Resource):
     def put(self):
-        conn = pymysql.connect(host="localhost",port = 3306, user='root',passwd='icstwip',db='Label',charset='utf8')
+        conn = pymysql.connect(host="localhost",port = 3306, user='root',passwd='icstwip',db='label_multiple',charset='utf8')
         cursor = conn.cursor()
-        res = Get_Res(cursor,True)
-        sql = '''select count(*) from LabelLog where labeled = 1'''
-        cursor.execute(sql)
-        cnt = cursor.fetchall()[0][0] + 1
+        labeller_id = request.form.get("labeller_id")
+        res = Get_Res(cursor, True, labeller_id)  # why True?
+        
+        # sql = '''select count(*) from LabelLog where labeled = 1'''
+        # cursor.execute(sql)
+        # cnt = cursor.fetchall()[0][0] + 1
+        
         return res
 
 class Get_Chain(Resource):
+    # 提交第一页标注内容
     def put(self):
-        conn = pymysql.connect(host="localhost",port = 3306, user='root',passwd='icstwip',db='Label',charset='utf8')
+        conn = pymysql.connect(host="localhost",port = 3306, user='root',passwd='icstwip',db='label_multiple',charset='utf8')
         cursor = conn.cursor()
         id = request.form.get('ID')
+        labeller_id = request.form.get("labeller_id")
 
         rel_plainev_ap = str2list(request.form.get("rel_plainev_ap"))
         rel_plainev_ap = inverse(rel_plainev_ap)
 
         rel_defenev_ap = str2list(request.form.get("rel_defenev_ap"))
-
         rel_plainev_ar = str2list(request.form.get("rel_plainev_ar"))
         rel_plainev_ar = inverse(rel_plainev_ar)
 
@@ -253,6 +271,7 @@ class Get_Chain(Resource):
             tups6.append([-1,p[0] + 1,-1,p[1] + 1])
 
         chains = find_chain(tups1,tups2,tups3,tups4,tups5,tups6)
+        # 原告证据，原告诉求，被告证据，被告诉求
 
         sql = '''select num from PlaintiffEvidence where id = '%s' ''' %(id)
         cursor.execute(sql)
@@ -278,7 +297,6 @@ class Get_Chain(Resource):
         tmp = []
 
         try:
-
             for pair in rel_plainev_ap:
                 tmp.append([plainevi[pair[0]],app[pair[1]]])
             rel_plainev_ap = tmp
@@ -292,7 +310,7 @@ class Get_Chain(Resource):
             for pair in rel_plainev_ar:
                 tmp.append([plainevi[pair[0]],arg[pair[1]]])
             rel_plainev_ar = tmp
-
+        
             tmp = []
             print(defenevi)
             print(arg)
@@ -317,29 +335,43 @@ class Get_Chain(Resource):
             return "IndexError"
 
         tmp = []
+
+        # insert event
+        sql = '''insert into labelevent(case_id, labeller_id) values ('%s','%s');''' % (id, labeller_id)
+        # print(sql)
+        cursor.execute(sql)
+        sql = '''select @@identity'''
+        cursor.execute(sql)
+        
+        eventid = cursor.fetchall()[0][0]
+        print(eventid)
+
+        # insert appeallabel
         for i in range(len(ap_class)):
-            sql =  '''update Appeal SET class = %s where num = %s ''' % (ap_class[i],app[i])
+            sql =  '''insert AppealLabel (ap_num, class, lb_id) values (%s, %s, %s);''' % (ap_class[i], app[i], eventid)
             cursor.execute(sql)
         print('update end')
 
 
-        sql = 'insert into rel_plainev_ap(ev_id,ap_id) values(%s,%s)'
-        cursor.executemany(sql,rel_plainev_ap)
+        add_eventid = lambda ls: [x + [eventid] for x in ls]
+        
+        sql = 'insert into rel_plainev_ap(ev_id,ap_id,lb_id) values(%s,%s,%s)'
+        cursor.executemany(sql, add_eventid(rel_plainev_ap))
 
-        sql = 'insert into rel_defenev_ap(ev_id,ap_id) values(%s,%s)'
-        cursor.executemany(sql, rel_defenev_ap)
+        sql = 'insert into rel_defenev_ap(ev_id,ap_id,lb_id) values(%s,%s,%s)'
+        cursor.executemany(sql, add_eventid(rel_defenev_ap))
 
-        sql = 'insert into rel_plainev_ar(ev_id,ar_id) values(%s,%s)'
-        cursor.executemany(sql, rel_plainev_ar)
+        sql = 'insert into rel_plainev_ar(ev_id,ar_id,lb_id) values(%s,%s,%s)'
+        cursor.executemany(sql, add_eventid(rel_plainev_ar))
 
-        sql = 'insert into rel_defenev_ar(ev_id,ar_id) values(%s,%s)'
-        cursor.executemany(sql, rel_defenev_ar)
+        sql = 'insert into rel_defenev_ar(ev_id,ar_id,lb_id) values(%s,%s,%s)'
+        cursor.executemany(sql, add_eventid(rel_defenev_ar))
 
-        sql = 'insert into rel_plain_defen(plain_ev_id,defen_ev_id) values(%s,%s)'
-        cursor.executemany(sql, rel_plain_defen)
+        sql = 'insert into rel_plain_defen(plain_ev_id,defen_ev_id, lb_id) values(%s,%s,%s)'
+        cursor.executemany(sql, add_eventid(rel_plain_defen))
 
-        sql = 'insert into rel_ap_ar(ap_id,ar_id) values(%s,%s)'
-        cursor.executemany(sql, rel_ap_ar)
+        sql = 'insert into rel_ap_ar(ap_id,ar_id,lb_id) values(%s,%s,%s)'
+        cursor.executemany(sql, add_eventid(rel_ap_ar))
         
         
         conn.commit()
@@ -347,9 +379,17 @@ class Get_Chain(Resource):
 
 class CommitPage(Resource):
     def put(self):
-        conn = pymysql.connect(host="localhost",port = 3306, user='root',passwd='icstwip',db='Label',charset='utf8')
+        conn = pymysql.connect(host="localhost",port = 3306, user='root',passwd='icstwip',db='label_multiple',charset='utf8')
         cursor = conn.cursor()
         id = request.form.get('id')
+        labeller_id = request.form.get("labeller_id")
+
+        # get eventid
+        sql = '''select num from labelevent where (case_id = '%s' and labeller_id = '%s')''' %(id, labeller_id)
+        cursor.execute(sql)
+        eventid = cursor.fetchall()[0][0]
+        print('get event_id: ', eventid)
+
         sql = '''select num from PlaintiffEvidence where id = '%s' ''' %(id)
         cursor.execute(sql)
         plainevi = cursor.fetchall()
@@ -385,17 +425,19 @@ class CommitPage(Resource):
                 app_ele = app[chain[2]-1]
             if chain[3] != -1:
                 arg_ele = arg[chain[3]-1]    
-            insert_chains.append([id,plain_ele,defen_ele,app_ele,arg_ele])
+            insert_chains.append([id,plain_ele,defen_ele,app_ele,arg_ele,eventid])
         
-        sql = 'insert into Focus(id,plain_evi_num,defen_evi_num,app_num,arg_num) values(%s,%s,%s,%s,%s)'
+        sql = 'insert into Focus(id,plain_evi_num,defen_evi_num,app_num,arg_num,lb_id) values(%s,%s,%s,%s,%s,%s)'
         cursor.executemany(sql,insert_chains)
+        # sql = '''update LabelLog SET labeled = 1 where id = '%s' ''' %(id)
 
-        sql = '''update LabelLog SET labeled = 1 where id = '%s' ''' %(id)
-        cursor.execute(sql)
-        sql = '''select * from LabelLog where labeled = 1'''
-        cursor.execute(sql)
-        print(cursor.fetchall())
-        res = Get_Res(cursor,False)
+        # cursor.execute(sql)
+        
+        # sql = '''select * from LabelLog where labeled = 1'''
+        # cursor.execute(sql)
+        # print(cursor.fetchall())
+        
+        res = Get_Res(cursor,False,labeller_id)
         conn.commit()
         return res       
 

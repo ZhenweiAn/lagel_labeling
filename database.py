@@ -85,8 +85,10 @@ def createAppealLabel(cursor):
     '''建立表'''
     sql ='''
         create table AppealLabel (
+			num int not null auto_increment primary key,
             ap_num int not null,
-            lb_id int not null
+            lb_id int not null,
+			class int not null
             )engine=innodb default charset=utf8;
          '''
     cursor.execute(sql)
