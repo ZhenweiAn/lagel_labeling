@@ -296,6 +296,11 @@ class Get_Chain(Resource):
 
         tmp = []
 
+		res = {
+			'status' : 'success'
+			'chains' : []
+		}
+
         try:
             for pair in rel_plainev_ap:
                 tmp.append([plainevi[pair[0]],app[pair[1]]])
@@ -332,7 +337,8 @@ class Get_Chain(Resource):
 
         except IndexError:
             print("IndexError")
-            return "IndexError"
+			res['status'] = 'IndexError'
+            return res
 
         tmp = []
 
@@ -375,7 +381,8 @@ class Get_Chain(Resource):
         
         
         conn.commit()
-        return chains
+		res['chains'] = chains
+        return res
 
 class CommitPage(Resource):
     def put(self):
