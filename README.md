@@ -24,4 +24,20 @@
   }
   ```
 
+
+
+
++ update:
+
+  将前端用到的服务器上的资源下载到本地，方便本地调试。
+
+  注意：为了当前版本能正常运行，\chain的返回格式还是一个列表，请在js中做出对应修改后(接受dict)将`web.py`第385行`res = chains`注释掉
   
+  
+
+#### 本地运行此项目：
+
+  1. 将LawSeaV2文件夹用海事法律项目-v2.0替换
+  2. 把`dataset.py`和`web.py`中的连接数据库中的MySQL数据库密码改成本地的密码
+  3. 安装依赖库，依次执行`python database.py`，`python web.py`
+  4. 访问`http://localhost:8080/tagging#

@@ -1,6 +1,6 @@
-var api_get_data = "http://59.108.48.35:8080/next";
-var api_submit_data = "http://59.108.48.35:8080/chain";
-var api_submit_dispute = "http://59.108.48.35:8080/commit";
+var api_get_data = "next";
+var api_submit_data = "chain";
+var api_submit_dispute = "commit";
 
 
 // 标注部分全局变量

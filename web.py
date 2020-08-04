@@ -296,10 +296,10 @@ class Get_Chain(Resource):
 
         tmp = []
 
-		res = {
-			'status' : 'success'
-			'chains' : []
-		}
+        res = {
+            'status' : 'success',
+            'chains' : []
+        }
 
         try:
             for pair in rel_plainev_ap:
@@ -337,7 +337,7 @@ class Get_Chain(Resource):
 
         except IndexError:
             print("IndexError")
-			res['status'] = 'IndexError'
+            res['status'] = 'IndexError'
             return res
 
         tmp = []
@@ -381,7 +381,8 @@ class Get_Chain(Resource):
         
         
         conn.commit()
-		res['chains'] = chains
+        res['chains'] = chains
+        res = chains  # 在前端做出对应修改后删除该行
         return res
 
 class CommitPage(Resource):
