@@ -396,6 +396,8 @@ class CommitPage(Resource):
         sql = '''select num from labelevent where (case_id = '%s' and labeller_id = '%s')''' %(id, labeller_id)
         cursor.execute(sql)
         eventid = cursor.fetchall()[0][0]
+        # 这里有过IndexError: tuple index out of range
+        # 因为上一页有IndexError导致没有新建Event
         print('get event_id: ', eventid)
 
         sql = '''select num from PlaintiffEvidence where id = '%s' ''' %(id)
@@ -433,17 +435,21 @@ class CommitPage(Resource):
                 app_ele = app[chain[2]-1]
             if chain[3] != -1:
                 arg_ele = arg[chain[3]-1]    
-            insert_chains.append([id,plain_ele,defen_ele,app_ele,arg_ele,eventid])
+            insert_chain = [plain_ele,defen_ele,app_ele,arg_ele,eventid]
+            items = ['plain_evi_num','defen_evi_num','app_num','arg_num', 'lb_id']
+            valid_items = ','.join([items[i] for i, j in enumerate(insert_chain) if j != -1])
+            valid_values = ','.join([str(i) for i in insert_chain if i != -1])
+            print(valid_items, valid_values)
+            insert_chains.append((valid_items, valid_values))
         
-        sql = 'insert into Focus(id,plain_evi_num,defen_evi_num,app_num,arg_num,lb_id) values(%s,%s,%s,%s,%s,%s)'
-        cursor.executemany(sql,insert_chains)
-        # sql = '''update LabelLog SET labeled = 1 where id = '%s' ''' %(id)
+        print("insert_chains", insert_chains)
+        sql = 'insert into Focus(%s) values(%s)'
+        print(sql%(insert_chains[0]))
 
-        # cursor.execute(sql)
-        
-        # sql = '''select * from LabelLog where labeled = 1'''
-        # cursor.execute(sql)
-        # print(cursor.fetchall())
+        for tup in insert_chains:
+            cursor.execute(sql%(tup))
+        # 这里用executemany会说槽位数量不对，但手写可以
+        # executemany只能用来传sql语句中的数据而不是任意字符串吧？
         
         res = Get_Res(cursor,False,labeller_id)
         conn.commit()

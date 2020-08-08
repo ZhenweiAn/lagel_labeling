@@ -117,7 +117,6 @@ def createFocus(cursor):
     sql = '''
             create table Focus (
                 num int not null auto_increment primary key,
-                id varchar(255) not null,
                 plain_evi_num int,
                 defen_evi_num int,
                 app_num int,
@@ -314,6 +313,24 @@ def rely(cursor):
 
     cursor.execute('''  alter table AppealLabel add foreign key(ap_num) references Appeal(num)''')
     cursor.execute('''  alter table AppealLabel add foreign key(lb_id) references LabelEvent(num)''')
+
+    # labellist->lawcase
+    cursor.execute('''  alter table LabelList add foreign key(id) references LawCase(id)''')
+    # labelevent -> caseid
+    cursor.execute('''  alter table LabelEvent add foreign key(case_id) references lawcase(id)''')
+    # focus -> 四个子条目，一个案件id(应该删去)，一个标注id
+    cursor.execute('''  alter table focus add foreign key(lb_id) references labelevent(num)''')
+    cursor.execute('''  alter table focus add foreign key(plain_evi_num) references plaintiffevidence(num)''')
+    cursor.execute('''  alter table focus add foreign key(defen_evi_num) references defendentevidence(num)''')
+    cursor.execute('''  alter table focus add foreign key(app_num) references appeal(num)''')
+    cursor.execute('''  alter table focus add foreign key(arg_num) references argue(num)''')
+    cursor.execute('''  alter table focus add foreign key(plain_evi_num) references plaintiffevidence(num)''')
+
+    cursor.execute('''  alter table plaintiffevidence add foreign key(id) references lawcase(id)''')
+    cursor.execute('''  alter table defendentevidence add foreign key(id) references lawcase(id)''')
+    cursor.execute('''  alter table argue add foreign key(id) references lawcase(id)''')
+    cursor.execute('''  alter table appeal add foreign key(id) references lawcase(id)''')
+    # 四项和案件
     return
 
 def init(cursor):
@@ -514,7 +531,7 @@ def Insert(cursor):
 if __name__ == '__main__':
     # 创建数据表
     # 创建连接
-    conn = pymysql.connect(host='localhost', port=3306, user='root', passwd='icstwip')
+    conn = pymysql.connect(host='localhost', port=3306, user='root', passwd='hsbmysql1201')
 
     # 创建游标
     cursor = conn.cursor()
